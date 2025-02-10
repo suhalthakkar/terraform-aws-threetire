@@ -77,7 +77,7 @@ resource "aws_autoscaling_group" "asg" {
   min_size                  = 1
   max_size                  = 3
   launch_configuration      = aws_launch_configuration.main.name
-  target_group_arns         = [var.alb_target_group_arn]
+  target_group_arns = [aws_lb_target_group.tg.arn]
 
   depends_on = [aws_security_group.instance_sg]
 }

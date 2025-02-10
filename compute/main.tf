@@ -36,7 +36,7 @@ resource "aws_lb" "alb" {
   name               = "app-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.app_sg.id]
+  security_groups    = [aws_security_group.instance_sg.id]
   subnets           = var.public_subnet_ids
 }
 
@@ -81,7 +81,12 @@ resource "aws_autoscaling_group" "asg" {
   desired_capacity          = 2
   min_size                  = 1
   max_size                  = 3
-  launch_configuration      = aws_launch_configuration.main.name
+  
+  launch_template {
+    id      = aws_launch_template.app_lt.id
+    version = "$Latest"
+  }
+  
   target_group_arns = [aws_lb_target_group.tg.arn]
 
   depends_on = [aws_security_group.instance_sg]

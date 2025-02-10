@@ -10,6 +10,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: latest
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -17,6 +22,20 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
 
-      - name: Destroy Terraform
+      - name: Destroy VPC Resources
         working-directory: vpc
-        run: terraform destroy -auto-approve
+        run: |
+          terraform init
+          terraform destroy -auto-approve
+
+      - name: Destroy RDS Resources
+        working-directory: rds
+        run: |
+          terraform init
+          terraform destroy -auto-approve
+
+      - name: Destroy Compute Resources
+        working-directory: compute
+        run: |
+          terraform init
+          terraform destroy -auto-approve

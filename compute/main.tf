@@ -60,7 +60,7 @@ resource "aws_lb_listener" "http" {
 
 resource "aws_launch_template" "app_lt" {
   name_prefix   = "app-template"
-  image_id      = "ami-0e82046e2f06c0a68 "
+  image_id      = "ami-0e82046e2f06c0a68"
   instance_type = "t2.micro"
   vpc_security_group_ids = [aws_security_group.instance_sg.id]
 

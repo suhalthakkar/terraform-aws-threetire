@@ -1,0 +1,80 @@
+name: Deploy Terraform to AWS
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  terraform:
+    name: Terraform Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚀 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🏗 Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: latest
+
+      - name: 🔑 Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      # Deploy VPC
+      - name: 🌐 Deploy VPC
+        working-directory: vpc
+        run: |
+          terraform init
+          terraform apply -auto-approve
+
+      # Capture VPC Outputs
+      - name: 📥 Get VPC Outputs
+        working-directory: vpc
+        run: |
+          echo "VPC_ID=$(terraform output -raw vpc_id)" >> $GITHUB_ENV
+          echo "PUBLIC_SUBNET_IDS=$(terraform output -json public_subnet_ids | jq -c '.')" >> $GITHUB_ENV
+          echo "PRIVATE_SUBNET_IDS=$(terraform output -json private_subnet_ids | jq -c '.')" >> $GITHUB_ENV
+
+      # Deploy RDS
+      - name: 🛢 Deploy RDS
+        working-directory: rds
+        run: |
+          terraform init
+          terraform apply -auto-approve \
+            -var "vpc_id=$VPC_ID" \
+            -var "private_subnet_ids=$PRIVATE_SUBNET_IDS"
+
+      # Capture RDS Output
+      - name: 📥 Get RDS Output
+        working-directory: rds
+        run: |
+          echo "RDS_ENDPOINT=$(terraform output -raw rds_endpoint)" >> $GITHUB_ENV
+
+      # Deploy Compute (ALB + ASG)
+      - name: 🖥 Deploy Compute
+        working-directory: compute
+        run: |
+          terraform init
+          terraform apply -auto-approve \
+            -var "vpc_id=$VPC_ID" \
+            -var "public_subnet_ids=$PUBLIC_SUBNET_IDS"
+
+      # Capture ALB Output
+      - name: 📥 Get ALB Output
+        working-directory: compute
+        run: |
+          echo "ALB_DNS=$(terraform output -raw alb_dns_name)" >> $GITHUB_ENV
+
+      - name: 🌍 Show Deployment Details
+        run: |
+          echo "✅ Deployment Complete!"
+          echo "🌐 VPC ID: $VPC_ID"
+          echo "🛢 RDS Endpoint: $RDS_ENDPOINT"
+          echo "🚀 ALB DNS: http://$ALB_DNS"

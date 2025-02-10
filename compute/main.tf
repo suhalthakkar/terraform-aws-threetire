@@ -14,13 +14,6 @@ resource "aws_security_group" "instance_sg" {
   vpc_id = var.vpc_id
 
   ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -32,6 +25,10 @@ resource "aws_security_group" "instance_sg" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "asg-security-group"
   }
 }
 
@@ -57,7 +54,7 @@ resource "aws_launch_template" "app_lt" {
   name_prefix   = "app-template"
   image_id      = "ami-0e82046e2f06c0a68 "
   instance_type = "t2.micro"
-  security_group_names = [aws_security_group.app_sg.name]
+  security_group_names = [aws_security_group.instance_sg.name]
 
   user_data = base64encode(<<EOF
   #!/bin/bash

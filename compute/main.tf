@@ -32,6 +32,14 @@ resource "aws_security_group" "instance_sg" {
   }
 }
 
+resource "aws_lb" "alb" {
+  name               = "app-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.app_sg.id]
+  subnets           = var.public_subnet_ids
+}
+
 resource "aws_lb_target_group" "tg" {
   name     = "app-tg"
   port     = 80

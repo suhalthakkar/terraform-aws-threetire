@@ -9,6 +9,11 @@ This project deploys a **3-tier web application** in **AWS using Terraform**, wi
 
 The infrastructure is automated using **GitHub Actions**, which deploys the resources whenever code is pushed to the `main` branch.
 
+## **Arch Diagram**
+
+
+![Threetireapplication](https://github.com/user-attachments/assets/935b3c77-5525-4a14-a728-2822fd92e0d1)
+
 ---
 
 ## **📂 Project Structure**

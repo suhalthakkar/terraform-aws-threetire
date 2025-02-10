@@ -10,28 +10,29 @@ terraform {
   }
 }
 
-resource "aws_security_group" "app_sg" {
+resource "aws_security_group" "instance_sg" {
   vpc_id = var.vpc_id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-}
-
-resource "aws_lb" "alb" {
-  name               = "app-alb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.app_sg.id]
-  subnets           = var.public_subnet_ids
 }
 
 resource "aws_lb_target_group" "tg" {
@@ -70,15 +71,13 @@ resource "aws_launch_template" "app_lt" {
 }
 
 resource "aws_autoscaling_group" "asg" {
-  desired_capacity     = 2
-  max_size            = 4
-  min_size            = 2
-  vpc_zone_identifier = var.public_subnet_ids
+  name                      = "terraform-asg"
+  vpc_zone_identifier       = var.public_subnet_ids
+  desired_capacity          = 2
+  min_size                  = 1
+  max_size                  = 3
+  launch_configuration      = aws_launch_configuration.main.name
+  target_group_arns         = [var.alb_target_group_arn]
 
-  launch_template {
-    id      = aws_launch_template.app_lt.id
-    version = "$Latest"
-  }
-
-  target_group_arns = [aws_lb_target_group.tg.arn]
+  depends_on = [aws_security_group.instance_sg]
 }

@@ -1,4 +1,4 @@
-#Terraform AWS 3-Tier Architecture Deployment
+##Terraform AWS 3-Tier Architecture Deployment
 
 Overview:
 This project deploys a 3-tier web application in AWS using Terraform, with separate state files for different components:

@@ -78,3 +78,4 @@ jobs:
           echo "🌐 VPC ID: $VPC_ID"
           echo "🛢 RDS Endpoint: $RDS_ENDPOINT"
           echo "🚀 ALB DNS: http://$ALB_DNS"
+

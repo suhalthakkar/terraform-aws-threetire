@@ -11,7 +11,7 @@ terraform {
   }
 }
 
-resource "aws_db_instance" "default" {
+resource "aws_db_instance" "postgres" {
   allocated_storage    = 20
   storage_type         = "gp2"
   engine               = "postgres"

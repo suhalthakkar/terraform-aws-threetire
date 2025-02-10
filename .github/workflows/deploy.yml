@@ -65,7 +65,6 @@ jobs:
           terraform apply -auto-approve \
             -var "vpc_id=$VPC_ID" \
             -var "public_subnet_ids=$PUBLIC_SUBNET_IDS"
-            -var "asg_security_group_id=$(terraform output -raw asg_security_group_id)"
 
       # Capture ALB Output
       - name: 📥 Get ALB Output

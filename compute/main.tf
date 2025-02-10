@@ -62,7 +62,7 @@ resource "aws_launch_template" "app_lt" {
   name_prefix   = "app-template"
   image_id      = "ami-0e82046e2f06c0a68 "
   instance_type = "t2.micro"
-  security_group_names = [aws_security_group.instance_sg.name]
+  vpc_security_group_ids = [aws_security_group.instance_sg.id]
 
   user_data = base64encode(<<EOF
   #!/bin/bash
